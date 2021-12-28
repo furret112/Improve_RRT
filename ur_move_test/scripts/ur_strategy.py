@@ -16,6 +16,7 @@ import numpy as np
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
 
 
+
 ## END_SUB_TUTORIAL
 
 def all_close(goal, actual, tolerance):
@@ -71,6 +72,7 @@ class MoveGroupTutorial(object):
     self.target_angle = 0
     self.target_x = 0
     self.target_y = 0
+    rospy.Service('obj_location', obj_coordinate, self.pass_info_to_server)
 
   ###====================== home ======================###
   def pose(self): 
@@ -99,16 +101,21 @@ class MoveGroupTutorial(object):
 
   ###====================== obj_location ======================###
   def pose1(self):
-    global obj_x, obj_y
+    obj_x = 207
+    obj_y = 160
 
-    obj_x, obj_y = pass_info_to_server()
+    obj_x, obj_y = self.pass_info_to_server()
+
 
     group = self.group
     pose_goal = geometry_msgs.msg.Pose()
-    pose_goal.position.x = 0.0
-    pose_goal.position.y = (487 -70 + (obj_y*2.27))/1000
+    pose_goal.position.x = ((234.16 - obj_x)*4.16 -108.8)/1000 #-0.108
+    pose_goal.position.y = (487 -70 + (obj_y*2.27))/1000 #0.630
     pose_goal.position.z = 0.106
-    print(obj_x, obj_y)
+
+    calibrate_x = ((234.16 - obj_x)*4.16 -108.8)/1000
+    calibrate_y = (487 -70 + (obj_y*2.27))/1000
+    print("x: ",calibrate_x,"y: ",calibrate_y)
     
     quaternion = quaternion_from_euler(np.radians(0),np.radians(90.), np.radians(0))   #roll_angle, pitch_angle, yaw_angle  
     
@@ -200,17 +207,18 @@ class MoveGroupTutorial(object):
     return all_close(joint_goal, current_joints, 0.01)
 
 
-def pass_info_to_server():
-    rospy.wait_for_service('obj_location')
-    try:
-        #create a server object
-        val = rospy.ServiceProxy('obj_location', obj_coordinate)
-        #val(arg) -> send a req to server
-        resp = val("req coordinate")
-        return resp.obj_x, resp.obj_y
+  def pass_info_to_server(self):
+      rospy.wait_for_service('obj_location')
+      try:
+          #create a server object
+          val = rospy.ServiceProxy('obj_location', obj_coordinate)
+          #val(arg) -> send a req to server
+          resp = val("req coordinate")
+          return resp.obj_x, resp.obj_y
 
-    except rospy.ServiceException as e:
-        print ('error when send commad !')
+      except rospy.ServiceException as e:
+          print ('error when send commad !')
+          return 0, 0
 
 
 
@@ -220,7 +228,6 @@ def main():
     print("============ Press `Enter` to begin the tutorial by setting up the moveit_commander (press ctrl-d to exit) ...")
     tutorial = MoveGroupTutorial()
     #rospy.Subscriber("object_coordinate", Coordinate_list, callback)
-    rospy.Service('obj_location', obj_coordinate, pass_info_to_server)
   
     raw_input()
     print('================================')
@@ -232,16 +239,21 @@ def main():
     tutorial.pose1()
     raw_input()
     print('================================')
-    print("pose2")
-    tutorial.pose2()
-    raw_input()
-    print('================================')
-    print("pose3")
-    tutorial.pose3()
-    raw_input()
-    print('================================')
-    print("pose4")
-    tutorial.pose4()
+    print("pose")
+    tutorial.pose()
+
+    # raw_input()
+    # print('================================')
+    # print("pose2")
+    # tutorial.pose2()MoveGroupTutorial
+    # raw_input()
+    # print('================================')
+    # print("pose3")
+    # tutorial.pose3()
+    # raw_input()
+    # print('================================')
+    # print("pose4")
+    # tutorial.pose4()
     
     print("============ Python tutorial demo complete!")
     
