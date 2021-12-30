@@ -41,7 +41,7 @@ class MoveGroupTutorial(object):
  
     robot = moveit_commander.RobotCommander()
     scene = moveit_commander.PlanningSceneInterface()
-    group_name = "manipulator" 
+    group_name = "arm" 
     group = moveit_commander.MoveGroupCommander(group_name)
     display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',
                                                    moveit_msgs.msg.DisplayTrajectory,
@@ -52,7 +52,8 @@ class MoveGroupTutorial(object):
     
     group.set_end_effector_link(ee_link)
 
-  
+    group.set_planner_id("RRTConnect")
+    group.set_planning_time(10)  
     group.set_max_acceleration_scaling_factor(0.1)
     group.set_max_velocity_scaling_factor(0.1)
     
@@ -137,10 +138,10 @@ def main():
     print('================================')
     print("pose")
     tutorial.pose()
-    raw_input()
-    print('================================')
-    print("pose1")
-    tutorial.pose1()
+    # raw_input()
+    # print('================================')
+    # print("pose1")
+    # tutorial.pose1()
     raw_input()
     print('================================')
     print("pose2")

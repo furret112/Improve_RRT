@@ -8,7 +8,7 @@ import moveit_commander
 import moveit_msgs.msg
 import geometry_msgs.msg
 #from ur_move_test.msg import Coordinate_list
-from ur_move_test.srv import obj_coordinate
+from ur_move_test.srv import obj_coordinate,obj_coordinateRequest,obj_coordinateResponse
 from math import pi
 from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
@@ -46,7 +46,7 @@ class MoveGroupTutorial(object):
  
     robot = moveit_commander.RobotCommander()
     scene = moveit_commander.PlanningSceneInterface()
-    group_name = "manipulator" 
+    group_name = "arm" 
     group = moveit_commander.MoveGroupCommander(group_name)
     display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',
                                                    moveit_msgs.msg.DisplayTrajectory,
@@ -57,7 +57,8 @@ class MoveGroupTutorial(object):
     
     group.set_end_effector_link(ee_link)
 
-  
+    group.set_planner_id("RRTConnect")
+    group.set_planning_time(10)
     group.set_max_acceleration_scaling_factor(0.1)
     group.set_max_velocity_scaling_factor(0.1)
     
@@ -72,7 +73,6 @@ class MoveGroupTutorial(object):
     self.target_angle = 0
     self.target_x = 0
     self.target_y = 0
-    rospy.Service('obj_location', obj_coordinate, self.pass_info_to_server)
 
   ###====================== home ======================###
   def pose(self): 
@@ -80,12 +80,12 @@ class MoveGroupTutorial(object):
     group.set_max_acceleration_scaling_factor(0.1)
     group.set_max_velocity_scaling_factor(0.1)
     joint_goal = group.get_current_joint_values()
-    joint_goal[0] =  pi/2
+    joint_goal[0] = -pi*3/2
     joint_goal[1] = -pi/2
     joint_goal[2] =  pi/2
     joint_goal[3] = -pi/2
     joint_goal[4] = -pi/2
-    joint_goal[5] = -pi/2    
+    joint_goal[5] =  pi/2    
     group.go(joint_goal, wait=True)
     group.stop()
     group.clear_pose_targets()
@@ -101,23 +101,24 @@ class MoveGroupTutorial(object):
 
   ###====================== obj_location ======================###
   def pose1(self):
-    obj_x = 207
-    obj_y = 160
+    obj_x = 258
+    obj_y = 130
 
     obj_x, obj_y = self.pass_info_to_server()
-
+    
+    print("x: ",obj_x,"y: ",obj_y)
 
     group = self.group
     pose_goal = geometry_msgs.msg.Pose()
     pose_goal.position.x = ((234.16 - obj_x)*4.16 -108.8)/1000 #-0.108
     pose_goal.position.y = (487 -70 + (obj_y*2.27))/1000 #0.630
-    pose_goal.position.z = 0.106
+    pose_goal.position.z = 0.146  #0.106  #0.0823
 
     calibrate_x = ((234.16 - obj_x)*4.16 -108.8)/1000
     calibrate_y = (487 -70 + (obj_y*2.27))/1000
-    print("x: ",calibrate_x,"y: ",calibrate_y)
+
     
-    quaternion = quaternion_from_euler(np.radians(0),np.radians(90.), np.radians(0))   #roll_angle, pitch_angle, yaw_angle  
+    quaternion = quaternion_from_euler(np.radians(-180),np.radians(0), np.radians(-90))   #roll_angle, pitch_angle, yaw_angle  
     
 
 
@@ -131,18 +132,43 @@ class MoveGroupTutorial(object):
     group.stop()
     group.clear_pose_targets()
 
+  # def pose1(self):
+  #   group = self.group
+  #   group.set_max_acceleration_scaling_factor(0.1)
+  #   group.set_max_velocity_scaling_factor(0.1)
+  #   joint_goal = group.get_current_joint_values()
+  #   joint_goal[0] = -276.88*(3.14/180)
+  #   joint_goal[1] = -28.67*(3.14/180)
+  #   joint_goal[2] = 56.72*(3.14/180)
+  #   joint_goal[3] = -118.02*(3.14/180)
+  #   joint_goal[4] = -89.66*(3.14/180)
+  #   joint_goal[5] = 90*(3.14/180)
+  #   group.go(joint_goal, wait=True)
+  #   group.stop()
+  #   group.clear_pose_targets()
+  #   current_joints = group.get_current_joint_values()
+  #   origin_orientation =  group.get_current_pose().pose.orientation
+  #   origindegree =  euler_from_quaternion([origin_orientation.x, origin_orientation.y, origin_orientation.z, origin_orientation.w]) 
+
+    
+  #   self.origin_degree[0] = origindegree[0]/3.14*180.0
+  #   self.origin_degree[1] = origindegree[1]/3.14*180.0
+  #   self.origin_degree[2] = origindegree[2]/3.14*180.0
+  #   return all_close(joint_goal, current_joints, 0.01)
+
+
   ###====================== upper cabin ======================###
   def pose2(self):
     group = self.group
     group.set_max_acceleration_scaling_factor(0.1)
     group.set_max_velocity_scaling_factor(0.1)
     joint_goal = group.get_current_joint_values()
-    joint_goal[0] = 103.66*(3.14/180)
-    joint_goal[1] = -64.69*(3.14/180)
-    joint_goal[2] = 80.84*(3.14/180)
-    joint_goal[3] = -17.56*(3.14/180)
-    joint_goal[4] = 13.67*(3.14/180)
-    joint_goal[5] = 1.44*(3.14/180)
+    joint_goal[0] = (103.61 -360)*(3.14/180)
+    joint_goal[1] = -64.36*(3.14/180)
+    joint_goal[2] = 78.97*(3.14/180)
+    joint_goal[3] = -16.05*(3.14/180)
+    joint_goal[4] = 13.62*(3.14/180)
+    joint_goal[5] = -88.53*(3.14/180)
     group.go(joint_goal, wait=True)
     group.stop()
     group.clear_pose_targets()
@@ -162,12 +188,37 @@ class MoveGroupTutorial(object):
     group.set_max_acceleration_scaling_factor(0.1)
     group.set_max_velocity_scaling_factor(0.1)
     joint_goal = group.get_current_joint_values()
-    joint_goal[0] = 103.65*(3.14/180)
+    joint_goal[0] = (103.65 -360)*(3.14/180)
     joint_goal[1] = -31.66*(3.14/180)
     joint_goal[2] = 91.39*(3.14/180)
     joint_goal[3] = -60.7*(3.14/180)
     joint_goal[4] = 13.88*(3.14/180)
-    joint_goal[5] = 0.99*(3.14/180)  
+    joint_goal[5] = -88.53*(3.14/180)  
+    group.go(joint_goal, wait=True)
+    group.stop()
+    group.clear_pose_targets()
+    current_joints = group.get_current_joint_values()
+    origin_orientation =  group.get_current_pose().pose.orientation
+    origindegree =  euler_from_quaternion([origin_orientation.x, origin_orientation.y, origin_orientation.z, origin_orientation.w]) 
+
+    
+    self.origin_degree[0] = origindegree[0]/3.14*180.0
+    self.origin_degree[1] = origindegree[1]/3.14*180.0
+    self.origin_degree[2] = origindegree[2]/3.14*180.0
+    return all_close(joint_goal, current_joints, 0.01)
+
+ ###====================== place on table ======================###    
+  def pose4(self):
+    group = self.group
+    group.set_max_acceleration_scaling_factor(0.1)
+    group.set_max_velocity_scaling_factor(0.1)
+    joint_goal = group.get_current_joint_values()
+    joint_goal[0] = -295.84*(3.14/180)
+    joint_goal[1] = -33.35*(3.14/180)
+    joint_goal[2] = 78.18*(3.14/180)
+    joint_goal[3] = -134.82*(3.14/180)
+    joint_goal[4] = -89.56*(3.14/180)
+    joint_goal[5] =  64.4*(3.14/180)  
     group.go(joint_goal, wait=True)
     group.stop()
     group.clear_pose_targets()
@@ -182,17 +233,17 @@ class MoveGroupTutorial(object):
     return all_close(joint_goal, current_joints, 0.01)
 
   ###====================== home ======================###
-  def pose4(self):
+  def pose5(self):
     group = self.group
     group.set_max_acceleration_scaling_factor(0.1)
     group.set_max_velocity_scaling_factor(0.1)
     joint_goal = group.get_current_joint_values()
-    joint_goal[0] =  pi/2
+    joint_goal[0] = -pi*3/2
     joint_goal[1] = -pi/2
     joint_goal[2] =  pi/2
     joint_goal[3] = -pi/2
     joint_goal[4] = -pi/2
-    joint_goal[5] = -pi/2    
+    joint_goal[5] =  pi/2    
     group.go(joint_goal, wait=True)
     group.stop()
     group.clear_pose_targets()
@@ -206,7 +257,6 @@ class MoveGroupTutorial(object):
     self.origin_degree[2] = origindegree[2]/3.14*180.0
     return all_close(joint_goal, current_joints, 0.01)
 
-
   def pass_info_to_server(self):
       rospy.wait_for_service('obj_location')
       try:
@@ -214,6 +264,7 @@ class MoveGroupTutorial(object):
           val = rospy.ServiceProxy('obj_location', obj_coordinate)
           #val(arg) -> send a req to server
           resp = val("req coordinate")
+          # resp = obj_coordinateResponse(val)
           return resp.obj_x, resp.obj_y
 
       except rospy.ServiceException as e:
@@ -221,14 +272,13 @@ class MoveGroupTutorial(object):
           return 0, 0
 
 
-
-
 def main():
   try:
     print("============ Press `Enter` to begin the tutorial by setting up the moveit_commander (press ctrl-d to exit) ...")
     tutorial = MoveGroupTutorial()
     #rospy.Subscriber("object_coordinate", Coordinate_list, callback)
-  
+
+    print("Press any key to start strategy!")
     raw_input()
     print('================================')
     print("pose")
@@ -237,23 +287,31 @@ def main():
     print('================================')
     print("pose1")
     tutorial.pose1()
+    # raw_input()
+    # print('================================')
+    # print("pose")
+    # tutorial.pose()
+
+    raw_input()
+    print('================================')
+    print("pose2")
+    tutorial.pose2()
+    raw_input()
+    print('================================')
+    print("pose3")
+    tutorial.pose3()
     raw_input()
     print('================================')
     print("pose")
     tutorial.pose()
-
-    # raw_input()
-    # print('================================')
-    # print("pose2")
-    # tutorial.pose2()MoveGroupTutorial
-    # raw_input()
-    # print('================================')
-    # print("pose3")
-    # tutorial.pose3()
-    # raw_input()
-    # print('================================')
-    # print("pose4")
-    # tutorial.pose4()
+    raw_input()
+    print('================================')
+    print("pose4")
+    tutorial.pose4()
+    raw_input()
+    print('================================')
+    print("pose")
+    tutorial.pose()
     
     print("============ Python tutorial demo complete!")
     
