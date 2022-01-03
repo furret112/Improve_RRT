@@ -31,10 +31,27 @@
   <!-- gripper -->
   <xacro:robotiq_arg2f_85 prefix="" />
 
+
+
+
+<!-- <xacro:arg name="kinematics_config" default="$(find ur_description)/config/ur5_ft_gripper/default_kinematics.yaml"/>
+  <xacro:ur5_robot prefix="" joint_limited="true"
+    shoulder_pan_lower_limit="${-pi}" shoulder_pan_upper_limit="${pi}"
+    shoulder_lift_lower_limit="${-pi*(1/2)}" shoulder_lift_upper_limit="${pi}"
+    elbow_joint_lower_limit="${-pi}" elbow_joint_upper_limit="${pi}"
+    wrist_1_lower_limit="${-pi}" wrist_1_upper_limit="${pi}"
+    wrist_2_lower_limit="${-pi}" wrist_2_upper_limit="${pi}"
+    wrist_3_lower_limit="${-pi}" wrist_3_upper_limit="${pi}"
+    transmission_hw_interface="$(arg transmission_hw_interface)"
+    kinematics_file="${load_yaml('$(arg kinematics_config)')}"
+  />  -->
+
+
+
   <joint name="ft_gripper_joint" type="fixed">
     <parent link= "robotiq_ft_frame_id" />
     <child link = "robotiq_arg2f_base_link" />
-    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 1.57" />
   </joint>
   <!-- <link name="world"/> -->
   <xacro:include filename="$(find ur_description)/urdf/inc/UR5_table.urdf" />

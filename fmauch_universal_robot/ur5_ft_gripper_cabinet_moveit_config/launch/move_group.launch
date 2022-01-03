@@ -66,7 +66,13 @@
              file="$(dirname)/planning_pipeline.launch.xml">
       <arg name="pipeline" value="$(arg pipeline)" />
     </include>
+
+    <rosparam command="load" file="$(find ur5_ft_gripper_cabinet_moveit_config)/config/kinematics.yaml"/>
+
   </group>
+
+  <!-- <group ns="move_group">
+  </group> -->
 
   <!-- Trajectory Execution Functionality -->
   <include ns="move_group" file="$(dirname)/trajectory_execution.launch.xml" if="$(arg allow_trajectory_execution)">
