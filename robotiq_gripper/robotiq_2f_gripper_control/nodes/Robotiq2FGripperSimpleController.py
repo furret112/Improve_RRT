@@ -42,24 +42,27 @@ This serves as an example for publishing messages on the 'Robotiq2FGripperRobotO
 using the 'Robotiq2FGripper_robot_output' msg type for sending commands to a 2F gripper.
 """
 
-import roslib; roslib.load_manifest('robotiq_2f_gripper_control')
+import roslib
+from rospy.client import spin; roslib.load_manifest('robotiq_2f_gripper_control')
 import rospy
 from robotiq_2f_gripper_control.msg import _Robotiq2FGripper_robot_output  as outputMsg
+from robotiq_2f_gripper_control.srv import gripper_cmd 
 from time import sleep
 
+command = 0
 
 def genCommand(char, command):
     """Update the command according to the character entered by the user."""    
         
     if char == 'a':
-        command = outputMsg.Robotiq2FGripper_robot_output();
+        command = outputMsg.Robotiq2FGripper_robot_output()
         command.rACT = 1
         command.rGTO = 1
         command.rSP  = 255
         command.rFR  = 150
 
     if char == 'r':
-        command = outputMsg.Robotiq2FGripper_robot_output();
+        command = outputMsg.Robotiq2FGripper_robot_output()
         command.rACT = 0
 
     if char == 'c':
@@ -98,7 +101,7 @@ def genCommand(char, command):
         command.rFR -= 25
         if command.rFR < 0:
             command.rFR = 0
-
+    print("yes")
     return command
         
 
@@ -131,22 +134,49 @@ def askForCommand(command):
 
     return raw_input(strAskForCommand)
 
+
+def return_cmd(req):
+    global command
+
+    if req.req == str('r'):
+        command = genCommand('r', command)  
+        print("reset")
+    if req.req == str('a'):
+        command = genCommand('a', command)  
+        print("active")             
+    if req.req == str('c'):
+        command = genCommand('200', command)
+        print("close")
+    if req.req == str('o'):
+        command = genCommand('o', command)
+        print("open")
+
+
+    pub.publish(command)    
+
+    return 'scucess publish command!'
+
+
 def publisher():
     """Main loop which requests new commands and publish them on the Robotiq2FGripperRobotOutput topic."""
-    rospy.init_node('Robotiq2FGripperSimpleController')
     
-    pub = rospy.Publisher('Robotiq2FGripperRobotOutput', outputMsg.Robotiq2FGripper_robot_output)
+    # while not rospy.is_shutdown():
 
-    command = outputMsg.Robotiq2FGripper_robot_output();
-
-    while not rospy.is_shutdown():
-
-        command = genCommand(askForCommand(command), command)            
+        # command = genCommand(askForCommand(command), command)            
         
-        pub.publish(command)
+        # pub.publish(command)
 
-        rospy.sleep(0.1)
+        #rospy.sleep(0.1)
+
+    rospy.spin()
                         
 
 if __name__ == '__main__':
+    rospy.init_node('Robotiq2FGripperSimpleController')
+
+    pub = rospy.Publisher('Robotiq2FGripperRobotOutput', outputMsg.Robotiq2FGripper_robot_output)
+
+    command = outputMsg.Robotiq2FGripper_robot_output()
+    rospy.Service('gripper_command', gripper_cmd, return_cmd)
+    
     publisher()
