@@ -151,9 +151,9 @@ def return_cmd(req):
         command = genCommand('o', command)
         print("open")
 
-
     pub.publish(command)    
-
+    
+    rospy.sleep(2)
     return 'scucess publish command!'
 
 

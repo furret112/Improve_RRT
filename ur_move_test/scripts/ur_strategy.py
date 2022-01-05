@@ -99,9 +99,9 @@ class MoveGroupTutorial(object):
     origin_orientation =  group.get_current_pose().pose.orientation
 
     origin =  group.get_current_pose(self.end_effector_link).pose
-    print(origin)
+    #print(origin)
     origindegree =  euler_from_quaternion([origin_orientation.x, origin_orientation.y, origin_orientation.z, origin_orientation.w]) 
-    print(origindegree)
+    #print(origindegree)
     
     self.origin_degree[0] = origindegree[0]/3.14*180.0
     self.origin_degree[1] = origindegree[1]/3.14*180.0
@@ -114,7 +114,7 @@ class MoveGroupTutorial(object):
     obj_x = 209
     obj_y = 173
 
-    obj_x, obj_y = self.pass_info_to_server()
+    #obj_x, obj_y = self.pass_info_to_server()
     
     print("x: ",obj_x,"y: ",obj_y)
 
@@ -125,7 +125,7 @@ class MoveGroupTutorial(object):
     pose_goal.position.z = 0.146  #0.106  #0.0823
 
     pose_goal.position.x = pose_goal.position.x + (0.015)
-    pose_goal.position.y = pose_goal.position.y + 0.145
+    pose_goal.position.y = pose_goal.position.y + 0.148
     pose_goal.position.z = pose_goal.position.z + 1.03
 
     # give next move a ref
@@ -138,13 +138,13 @@ class MoveGroupTutorial(object):
 
 
     pose_goal.orientation.x = quaternion[0]
-    print(pose_goal.orientation.x)
+    #print(pose_goal.orientation.x)
     pose_goal.orientation.y = quaternion[1]
-    print(pose_goal.orientation.y)
+    #print(pose_goal.orientation.y)
     pose_goal.orientation.z = quaternion[2]
-    print(pose_goal.orientation.z)
+    #print(pose_goal.orientation.z)
     pose_goal.orientation.w = quaternion[3]
-    print(pose_goal.orientation.w)
+    #print(pose_goal.orientation.w)
 
 
     group.set_pose_target(pose_goal, self.end_effector_link)
@@ -171,20 +171,53 @@ class MoveGroupTutorial(object):
 
 
     pose_goal.orientation.x = quaternion[0]
-    print(pose_goal.orientation.x)
+    #print(pose_goal.orientation.x)
     pose_goal.orientation.y = quaternion[1]
-    print(pose_goal.orientation.y)
+    #print(pose_goal.orientation.y)
     pose_goal.orientation.z = quaternion[2]
-    print(pose_goal.orientation.z)
+    #print(pose_goal.orientation.z)
     pose_goal.orientation.w = quaternion[3]
-    print(pose_goal.orientation.w)
+    #print(pose_goal.orientation.w)
 
 
     group.set_pose_target(pose_goal, self.end_effector_link)
 
     plan = group.go(wait=True)
     origin =  group.get_current_pose()
-    print(origin)
+    #print(origin)
+    group.stop()
+    group.clear_pose_targets()
+
+
+  ###====================== obj_location(up) ======================###
+  def pose1_3(self):
+    global pos_x, pos_y, pos_z
+
+    group = self.group
+    pose_goal = geometry_msgs.msg.Pose()
+    pose_goal.position.x = pos_x
+    pose_goal.position.y = pos_y
+    pose_goal.position.z = pos_z
+
+    
+    quaternion = quaternion_from_euler(np.radians(-180),np.radians(0), np.radians(-90))    
+
+
+    pose_goal.orientation.x = quaternion[0]
+    #print(pose_goal.orientation.x)
+    pose_goal.orientation.y = quaternion[1]
+    #print(pose_goal.orientation.y)
+    pose_goal.orientation.z = quaternion[2]
+    #print(pose_goal.orientation.z)
+    pose_goal.orientation.w = quaternion[3]
+    #print(pose_goal.orientation.w)
+
+
+    group.set_pose_target(pose_goal, self.end_effector_link)
+
+    plan = group.go(wait=True)
+    origin =  group.get_current_pose()
+    #print(origin)
     group.stop()
     group.clear_pose_targets()
 
@@ -466,108 +499,111 @@ def main():
     print("============ Press `Enter` to begin the tutorial by setting up the moveit_commander (press ctrl-d to exit) ...")
     tutorial = MoveGroupTutorial()
     #rospy.Subscriber("object_coordinate", Coordinate_list, callback)
-
+    
     print("Press any key to start strategy!")
+ 
 
-    raw_input()
+    #raw_input()
+    print('================================')
+    print("pose")
+    tutorial.pose()
+
+    #raw_input()
     print('================================')
     print("gripper_reset")
     tutorial.gripper_control('r')
 
-    raw_input()
+    #raw_input()
     print('================================')
     print("gripper_active")
     tutorial.gripper_control('a')
 
-    raw_input()
-    print('================================')
-    print("pose")
-    tutorial.pose()
-
-    raw_input()
+    #raw_input()
     print('================================')
     print("pose1")
     tutorial.pose1()
 
-    raw_input()
+    #raw_input()
     print('================================')
     print("pose1_down")
     tutorial.pose1_2()
 
-    raw_input()
+    
+    #raw_input()
     print('================================')
     print("gripper_close")
     tutorial.gripper_control('c')
 
-    raw_input()
+    #raw_input()
     print('================================')
-    print("pose1")
-    tutorial.pose1()
+    print("pose1_up")
+    tutorial.pose1_3()
 
-    raw_input()
+    #raw_input()
     print('================================')
     print("pose2_out")
     tutorial.pose2_1()
 
-    raw_input()
+    #raw_input()
     print('================================')
     print("pose2_in")
     tutorial.pose2_3()
 
-    raw_input()
+    #raw_input()
     print('================================')
     print("gripper_open")
     tutorial.gripper_control('o')
 
-    raw_input()
+    #raw_input()
     print('================================')
     print("pose2_out")
     tutorial.pose2_1()
 
-    raw_input()
+    #raw_input()
     print('================================')
     print("pose3_out")
     tutorial.pose3_1()
 
-    raw_input()
+    #raw_input()
     print('================================')
     print("pose3_in")
     tutorial.pose3_3()
 
-    raw_input()
+    #raw_input()
     print('================================')
     print("gripper_close")
     tutorial.gripper_control('c')
 
-    raw_input()
+    #raw_input()
     print('================================')
     print("pose3_out")
     tutorial.pose3_1()
 
-    raw_input()
+    #raw_input()
     print('================================')
     print("pose4")
     tutorial.pose4()
 
-    raw_input()
+    #raw_input()
     print('================================')
     print("pose1_down")
     tutorial.pose1_2()
 
-    raw_input()
+    #raw_input()
     print('================================')
     print("gripper_close")
     tutorial.gripper_control('o')
 
-    raw_input()
+    #raw_input()
     print('================================')
     print("pose4")
     tutorial.pose4()
 
-    raw_input()
+    #raw_input()
     print('================================')
     print("pose")
     tutorial.pose()
+    
 
     
     print("============ Python tutorial demo complete!")
