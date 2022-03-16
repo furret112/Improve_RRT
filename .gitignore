@@ -1,6 +1,5 @@
 *~
 *.pyc
-moveit/
 moveit_msgs/
 moveit_resources/
 moveit_tutorials/
